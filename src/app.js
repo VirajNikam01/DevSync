@@ -1,45 +1,26 @@
 const express = require("express");
+const { adminAuth, userAuth } = require("./middlewares/auth");
 
 const app = express();
 
-app.get("/user", (req, res) => {
-  console.log("QUERY: ", req.query);
-  res.send({ firstName: "Viraj", lastName: "Nikam" });
+app.use("/admin", adminAuth, (req, res) => {
+  res.send("Admin pannel");
 });
 
-app.get("/user/:userId/:password", (req, res) => {
-  console.log("PARAMS: ", req.params);
-  console.log("PARAMS QUERY: ", req.query);
-  res.send({ firstName: "Viraj", lastName: "Nikam" });
+app.get("/admin/getData", adminAuth, (req, res) => {
+  res.send("Completed the task");
+});
+
+app.get("/user", userAuth, (req, res) => {
+  throw new Error("Some error");
+  res.send("user pannel");
 });
 
 
-app.get("/*fly/", (req, res)=>{
-    res.send('Working OK')
-})
-
-
-
-
-
-
-
-app.post("/user", (req, res) => {
-  console.log("user created");
-  res.send("user created successfully !");
-});
-
-app.delete("/user", (req, res) => {
-  console.log("User Deleted");
-  res.send("user deleted sucessfully !");
-});
-
-app.put("/user", (req, res) => {
-  res.send("user updated success");
-});
-
-app.patch("/user", (req, res) => {
-  res.send("updated in smaller difference");
+app.use("/", (err, req, res, next) => {
+  if (err) {
+    res.status(500).send("something went wrong");
+  }
 });
 
 app.listen(7777, () => console.log("server running on port 7777"));
