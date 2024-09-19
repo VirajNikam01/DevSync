@@ -44,8 +44,28 @@ app.delete("/user", async (req, res) => {
 app.patch("/user", async (req, res) => {
   const userFirstName = req.body.firstName;
   const data = req.body;
+
   try {
-    await User.findOneAndUpdate({ firstName: userFirstName }, data);
+    const ALLOWED_UPDATES = [
+      "age",
+      "firstName",
+      "lastName",
+      "about",
+      "photoURL",
+      "gender",
+      "skills",
+    ];
+    const isUpdateAllowed = Object.keys(data).every((update) =>
+      ALLOWED_UPDATES.includes(update)
+    );
+    const isLimitedSkills = data?.skills?.length < 10;
+
+    if (!isUpdateAllowed || !isLimitedSkills) {
+      throw new Error("Cannot Update Fields");
+    }
+    await User.findOneAndUpdate({ firstName: userFirstName }, data, {
+      runValidators: true,
+    });
     res.send("user Updated successfully!");
   } catch (error) {
     res.status(400).send("Something went wrong");
@@ -59,7 +79,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User created successfully!");
   } catch (error) {
-    res.status(400).send("failed to save user");
+    res.status(400).send("failed to save user" + error.message);
   }
 });
 
