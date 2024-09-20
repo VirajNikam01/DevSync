@@ -1,10 +1,17 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+
+const { validateSignUpApi, validateLoginApi } = require("./utils/validation");
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 //Get user API
 app.get("/user", async (req, res) => {
@@ -75,11 +82,75 @@ app.patch("/user", async (req, res) => {
 //POST user API
 app.post("/signup", async (req, res) => {
   try {
-    const user = new User(req.body);
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      photoURL,
+      gender,
+      about,
+      skills,
+    } = req.body;
+    //validation
+    validateSignUpApi(req);
+
+    //password encryption
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    //creating instance of user model
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+      photoURL,
+      gender,
+      about,
+      skills,
+    });
     await user.save();
     res.send("User created successfully!");
   } catch (error) {
     res.status(400).send("failed to save user" + error.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { password, emailId } = req.body;
+    //Validate
+    validateLoginApi(req);
+    //check password
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid Crediantials");
+    }
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      throw new Error("Invalid Crediantials");
+    } else {
+      //Generte the JWT token
+      const tokenJWT = jwt.sign({ _id: user._id }, "DevTinder@909", {
+        expiresIn: "1d",
+      });
+
+      res.cookie("token", tokenJWT, {
+        expires: new Date(Date.now() + 10*1000),
+      });
+      res.send("User Logedin Successfull!");
+    }
+  } catch (error) {
+    res.status(400).send("ERROR : " + error.message);
+  } 
+});
+
+app.get("/profile", [userAuth], async (req, res) => {
+  try {
+    const user = req.user;
+    res.send(user);
+  } catch (error) {
+    res.status(400).send("ERROR : " + error.message);
   }
 });
 

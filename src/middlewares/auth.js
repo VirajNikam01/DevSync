@@ -1,21 +1,25 @@
-const adminAuth = (req, res, next) => {
-  const token = "abc";
-  const isAuthorized = token === "abc";
-  if (!isAuthorized) {
-    res.status(401).send("Unauthorized request");
-  } else {
-    next();
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+
+const userAuth = async (req, res, next) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      throw new Error("Invalid Crediantials");
+    }
+
+    const decoded = await jwt.verify(token, "DevTinder@909");
+    const { _id } = decoded;
+
+    const user = await User.findOne({ _id });
+    if (!user) {
+      throw new Error("User not found!");
+    }
+    req.user = user
+    next()
+  } catch (error) {
+    res.status(400).send("ERROR : " + error.message);
   }
 };
 
-const userAuth = (req, res, next) => {
-  const userToken = "user";
-  const isAuthorized = userToken === "user";
-  if (!isAuthorized) {
-    res.status(401).send("unauthorized user");
-  } else {
-    next();
-  }
-};
-
-module.exports = { adminAuth, userAuth };
+module.exports = {  userAuth };
