@@ -1,15 +1,16 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
-const { Schema } = mongoose;
-
-const userSchema = new Schema(
+//User Schema
+const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      minLength: 2,
-      maxLength: 20,
       required: true,
+      minLength: 2,
+      maxLength: 25,
     },
     lastName: {
       type: String,
@@ -18,48 +19,66 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
-      trim: true,
+    },
+    about: {
+      type: String,
+    },
+    age: {
+      type: Number,
+    },
+    skills: {
+      type: [String],
       validate(value) {
-        if (!validator.isEmail(value)) {
-          throw new Error("Enter valid email " + value);
-        }
+        if (value.length > 20) throw new Error("Can store maximum 20 skills");
+        value.forEach((data) => {
+          if (data.length > 20) throw new Error("Enter valid skills");
+        });
       },
     },
     password: {
       type: String,
       required: true,
     },
-    age: {
-      type: Number,
-    },
     gender: {
       type: String,
       lowercase: true,
       validate(value) {
-        if (!["male", "female", "other"].includes(value.toLowerCase())) {
-          throw new Error("Enter valid gender");
+        if (!["male", "female", "other"].includes(value)) {
+          throw new Error("Enter valid Age.");
         }
       },
     },
-    about: {
-      type: String,
-      default: "This is about me",
-      minLength: 10,
-      maxLength: 50,
-    },
-    photoURL: {
+    photoUrl: {
       type: String,
       default:
-        "https://unsplash.com/photos/a-close-up-of-a-blue-shirt-pko6mb8Vdao",
-    },
-    skills: {
-      type: [String],
+        "https://images.unsplash.com/photo-1726510114046-b7938cdc1bd1?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
   },
   { timestamps: true }
 );
 
+userSchema.index({ firstName: 1, lastName: 1 });
+
+//Schema Methods
+userSchema.methods.getJWT = async function () {
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, "DEV@Tinder909");
+
+  return token;
+};
+
+userSchema.methods.verifyPassword = async function (userEnteredPassword) {
+  const user = this;
+  const passwordHash = user.password;
+  const isValidPassword = await bcrypt.compare(
+    userEnteredPassword,
+    passwordHash
+  );
+
+  return isValidPassword;
+};
+
+//Model
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

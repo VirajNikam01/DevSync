@@ -4,22 +4,19 @@ const User = require("../models/user");
 const userAuth = async (req, res, next) => {
   try {
     const { token } = req.cookies;
-    if (!token) {
-      throw new Error("Invalid Crediantials");
-    }
-
-    const decoded = await jwt.verify(token, "DevTinder@909");
+    if (!token) throw new Error("please logIn");
+    // Verify the token
+    const decoded = await jwt.verify(token, "DEV@Tinder909");
     const { _id } = decoded;
 
+    // get the data from DB
     const user = await User.findOne({ _id });
-    if (!user) {
-      throw new Error("User not found!");
-    }
-    req.user = user
-    next()
+    if (!user) throw new Error("User doesnt exist");
+    req.user = user;
+    next();
   } catch (error) {
-    res.status(400).send("ERROR : " + error.message);
+    res.status(400).send({ message: error.message });
   }
 };
 
-module.exports = {  userAuth };
+module.exports = { userAuth };
