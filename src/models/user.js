@@ -62,7 +62,7 @@ userSchema.index({ firstName: 1, lastName: 1 });
 //Schema Methods
 userSchema.methods.getJWT = async function () {
   const user = this;
-  const token = await jwt.sign({ _id: user._id }, "DEV@Tinder909");
+  const token = await jwt.sign({ _id: user._id }, process.env.PRIVATE_KEY); 
 
   return token;
 };

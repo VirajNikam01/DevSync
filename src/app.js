@@ -1,5 +1,8 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const dotenv = require("dotenv");
+dotenv.config();
 
 //Local Modules
 const connectDB = require("./config/database");
@@ -13,6 +16,12 @@ const userRouter = require("./routes/user");
 
 const app = express();
 
+app.use(
+  cors({
+    origin: process.env.DEV_ALLOWED_ORIGIN,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
