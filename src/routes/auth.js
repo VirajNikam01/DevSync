@@ -38,7 +38,7 @@ authRouter.post("/login", async (req, res, next) => {
     // Send Token In Cookie
     res.cookie("token", jwtToken);
     //send res
-    res.send({ message: "Logged in Successfully!" });
+    res.json({ message: "Logged in Successfully!" });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
