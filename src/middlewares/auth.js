@@ -6,7 +6,6 @@ const userAuth = async (req, res, next) => {
     const { token } = req.cookies;
     if (!token) throw new Error("please logIn");
     // Verify the token
-    console.log(process.env.PRIVATE_KEY)
     const decoded = await jwt.verify(token, process.env.PRIVATE_KEY); 
     const { _id } = decoded;
 

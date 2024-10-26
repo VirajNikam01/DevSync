@@ -18,7 +18,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.DEV_ALLOWED_ORIGIN,
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -33,7 +33,11 @@ app.use("/", userRouter);
 connectDB()
   .then(() => {
     console.log("database connected successfuly");
-    app.listen(7777, () => console.log("server running on port 7777"));
+    try {
+      app.listen(7777, () => console.log("server running on port 7777"));
+    } catch (error) {
+      console.log("Failed to connect");
+    }
   })
   .catch((err) => {
     console.log("database can not be connected");

@@ -12,7 +12,10 @@ const signUpValidation = (req) => {
     photoUrl,
     emailId,
     password,
+    designation,
   } = req.body;
+
+  console.log(req.body);
 
   if (!validator.isEmail(emailId)) throw new Error("Enter Valid Email");
   else if (!validator.isStrongPassword(password))
@@ -30,6 +33,7 @@ const signUpValidation = (req) => {
     photoUrl,
     emailId,
     password,
+    designation,
   };
 };
 
@@ -53,6 +57,7 @@ const validateEditProfileData = (req) => {
     "age",
     "photoUrl",
     "skills",
+    "designation",
   ];
 
   const isEditable = Object.keys(req.body).every((field) => {
@@ -65,11 +70,9 @@ const validateEditProfileData = (req) => {
 const validateChangePassword = async (req) => {
   const { password } = req.body;
 
-  if(!validator.isStrongPassword(password)){
-    throw new Error('Enter valid password')
+  if (!validator.isStrongPassword(password)) {
+    throw new Error("Enter valid password");
   }
-  
-
 };
 
 module.exports = {

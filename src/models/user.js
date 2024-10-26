@@ -22,12 +22,15 @@ const userSchema = new mongoose.Schema(
     },
     about: {
       type: String,
+      default: "",
     },
     age: {
       type: Number,
+      default: 18,
     },
     skills: {
       type: [String],
+      default: [],
       validate(value) {
         if (value.length > 20) throw new Error("Can store maximum 20 skills");
         value.forEach((data) => {
@@ -51,7 +54,21 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
       default:
-        "https://images.unsplash.com/photo-1726510114046-b7938cdc1bd1?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        "https://images.unsplash.com/photo-1640951613773-54706e06851d?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    role: {
+      type: String,
+      default: "user",
+      validate: (value) => {
+        if (!["user", "admin", "premium"].includes(value)) {
+          throw new Error("Enter valid Role");
+        }
+      },
+    },
+    designation: {
+      type: String,
+      default: "Fresher",
+      maxLength: 16,
     },
   },
   { timestamps: true }
@@ -62,7 +79,7 @@ userSchema.index({ firstName: 1, lastName: 1 });
 //Schema Methods
 userSchema.methods.getJWT = async function () {
   const user = this;
-  const token = await jwt.sign({ _id: user._id }, process.env.PRIVATE_KEY); 
+  const token = await jwt.sign({ _id: user._id }, process.env.PRIVATE_KEY);
 
   return token;
 };

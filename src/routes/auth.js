@@ -19,6 +19,7 @@ authRouter.post("/signup", async (req, res, next) => {
     await user.save();
     res.send({ message: "user registered" });
   } catch (error) {
+    console.log("error message");
     res.status(400).send({ message: error.message });
   }
 });
@@ -29,7 +30,7 @@ authRouter.post("/login", async (req, res, next) => {
     const { emailId, password } = loginInValidation(req);
     //get the user from DB
     const user = await User.findOne({ emailId });
-    if (!user) throw new Error("User not Found");
+    if (!user) throw new Error("User not Found, Please try again!");
     // Compare Hash Pasword with PlainText Password
     const isPasswordValid = await user.verifyPassword(password);
     if (!isPasswordValid) throw new Error("Invalid Crediantials");
@@ -38,7 +39,33 @@ authRouter.post("/login", async (req, res, next) => {
     // Send Token In Cookie
     res.cookie("token", jwtToken);
     //send res
-    res.json({ message: "Logged in Successfully!" });
+    const {
+      updatedAt,
+      firstName,
+      createdAt,
+      about,
+      age,
+      skills,
+      photoUrl,
+      lastName,
+      gender,
+      role,
+      designation,
+    } = user;
+    res.json({
+      updatedAt,
+      firstName,
+      createdAt,
+      about,
+      age,
+      skills,
+      photoUrl,
+      lastName,
+      gender,
+      emailId,
+      role,
+      designation,
+    });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }

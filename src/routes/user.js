@@ -14,6 +14,7 @@ const USER_SAFE_DATA = [
   "age",
   "about",
   "photoUrl",
+  "designation",
 ];
 
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
@@ -44,11 +45,13 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
 
+      console.log(connectionRequests)
+
     const data = connectionRequests.map((item) => {
       if (item.fromUserId._id.toString() === loggedInUser._id.toString()) {
-        return item.fromUserId;
+        return item.toUserId;
       }
-      return item.toUserId;
+      return item.fromUserId;
     });
 
     res.send({ status: 200, data: data });
@@ -85,7 +88,7 @@ userRouter.get("/feed", userAuth, async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    res.send({ data: Array.from(users) });
+    res.json({ data: Array.from(users) });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
