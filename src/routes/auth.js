@@ -37,7 +37,11 @@ authRouter.post("/login", async (req, res, next) => {
     // Generate JWT Token
     const jwtToken = await user.getJWT();
     // Send Token In Cookie
-    res.cookie("token", jwtToken);
+    res.cookie("token", jwtToken, {
+      httpOnly : true,
+      secure : true,
+      sameSite : 'none'
+    });
     //send res
     const {
       updatedAt,
