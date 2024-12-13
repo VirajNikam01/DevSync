@@ -16,9 +16,11 @@ const userRouter = require("./routes/user");
 
 const app = express();
 
+const PORT = process.env.PORT || 7777;
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://devsyncui.netlify.app/"],
     credentials: true,
   })
 );
@@ -34,7 +36,7 @@ connectDB()
   .then(() => {
     console.log("database connected successfuly");
     try {
-      app.listen(7777, () => console.log("server running on port 7777"));
+      app.listen(PORT, () => console.log(`server running on port ${PORT}`));
     } catch (error) {
       console.log("Failed to connect");
     }
