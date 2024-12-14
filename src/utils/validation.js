@@ -15,7 +15,7 @@ const signUpValidation = (req) => {
     designation,
   } = req.body;
 
-  console.log(req.body);
+  // console.log(req.body);
 
   if (!validator.isEmail(emailId)) throw new Error("Enter Valid Email");
   else if (!validator.isStrongPassword(password))

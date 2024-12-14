@@ -45,7 +45,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
 
-      console.log(connectionRequests)
+    // console.log(connectionRequests);
 
     const data = connectionRequests.map((item) => {
       if (item.fromUserId._id.toString() === loggedInUser._id.toString()) {
@@ -91,6 +91,69 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     res.json({ data: Array.from(users) });
   } catch (error) {
     res.status(400).send({ message: error.message });
+  }
+});
+
+//OPEN ROUTES
+userRouter.get("/user/:id", userAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) throw new Error("No User With Provided Id");
+    const {
+      firstName,
+      lastName,
+      age,
+      about,
+      role,
+      skills,
+      designation,
+      photoUrl,
+      gender,
+      createdAt,
+      _id,
+    } = user;
+
+    const fromUserIdConnection = await ConnectionRequest.findOne({
+      fromUserId: req.user._id,
+      toUserId: id,
+    });
+    const toUserIdConnection = await ConnectionRequest.findOne({
+      fromUserId: id,
+      toUserId: req.user._id,
+    });
+
+    let relationship = "none";
+    if (fromUserIdConnection) {
+      relationship =
+        fromUserIdConnection.status !== "accepted"
+          ? "pending"
+          : fromUserIdConnection.status; //intrested, accepted, ignored
+    } else if (toUserIdConnection) {
+      relationship =
+        toUserIdConnection.status !== "accepted"
+          ? "intrested"
+          : toUserIdConnection.status; //intrested, accepted, ignored
+    }
+
+    res.send({
+      data: {
+        firstName,
+        lastName,
+        age,
+        about,
+        role,
+        skills,
+        designation,
+        photoUrl,
+        gender,
+        relationship,
+        createdAt,
+        _id,
+      },
+    });
+  } catch (error) {
+    res.send({ message: "Error Occured" });
   }
 });
 
