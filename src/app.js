@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 7777;
 
 app.use(
   cors({
-    origin: ["https://devsyncui.netlify.app/", "http://localhost:5173"],
+    origin: ["https://devsyncui.netlify.app", "http://localhost:5173"],
     credentials: true,
   })
 );
