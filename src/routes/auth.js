@@ -38,9 +38,9 @@ authRouter.post("/login", async (req, res, next) => {
     const jwtToken = await user.getJWT();
     // Send Token In Cookie
     res.cookie("token", jwtToken, {
-      httpOnly : true,
-      secure : true,
-      sameSite : 'none'
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
     });
     //send res
     const {
@@ -76,7 +76,7 @@ authRouter.post("/login", async (req, res, next) => {
 });
 
 authRouter.post("/logout", (req, res) => {
-  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.cookie("token", null, { expires: new Date(Date.now()), httpOnly: true });
   res.send({ message: "logged out successfully!" });
 });
 
